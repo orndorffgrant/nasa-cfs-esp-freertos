@@ -1,0 +1,3 @@
+[submodule "esp-idf-hello-world/third_party/cFS"]
+	path = esp-idf-hello-world/third_party/cFS
+	url = https://github.com/orndorffgrant/cFS.git
