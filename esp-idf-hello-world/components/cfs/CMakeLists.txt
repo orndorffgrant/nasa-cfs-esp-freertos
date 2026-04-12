@@ -6,12 +6,12 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/cfe/modules/resourceid/fsw/src/cfe_resourceid_api.c"
     "${CFS_ROOT}/cfe/modules/fs/fsw/src/cfe_fs_api.c"
     "${CFS_ROOT}/cfe/modules/fs/fsw/src/cfe_fs_priv.c"
-    "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_ccsdsext.c"
+    # "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_ccsdsext.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_ccsdspri.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_init.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_integrity.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_msgid_shared.c"
-    "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_msgid_v2.c"
+    "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_msgid_v1.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_sechdr_checksum.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_sechdr_fc.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_sechdr_time.c"
@@ -99,9 +99,10 @@ set(COMPONENT_SRCS
 )
  
 set(PUBLIC_INCLUDES
-    # cfe_mission_cfg.h osconfig.h
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CFS_ROOT}/cfe/cmake/target/inc"
     "${CFS_ROOT}/cfe/modules/core_api/fsw/inc"
+    "${CFS_ROOT}/cfe/modules/core_private/fsw/inc"
     "${CFS_ROOT}/cfe/modules/es/fsw/inc"
     "${CFS_ROOT}/cfe/modules/evs/fsw/inc"
     "${CFS_ROOT}/cfe/modules/sb/fsw/inc"
@@ -139,33 +140,48 @@ set(PRIVATE_INCLUDES
 )
 
 # Generate osconfig.h from OSAL's template.
-set(OSAL_CONFIG_INCLUDE_DYNAMIC_LOADER  "")
-set(OSAL_CONFIG_INCLUDE_NETWORK         "")
-set(OSAL_CONFIG_INCLUDE_STATIC_LOADER   "1")
-set(OSAL_CONFIG_INCLUDE_SHELL           "")
-set(OSAL_CONFIG_DEBUG_PRINTF            "1")
-set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE   "1")
-set(OSAL_CONFIG_CONSOLE_ASYNC           "")
-set(OSAL_CONFIG_BUGCHECK_DISABLE        "")
-set(OSAL_CONFIG_BUGCHECK_STRICT         "")
-set(OSAL_CONFIG_MAX_API_NAME        "256")
-set(OSAL_CONFIG_MAX_PATH_LEN        "256")
-set(OSAL_CONFIG_MAX_TASKS        "16")
-set(OSAL_CONFIG_MAX_QUEUES       "16")
-set(OSAL_CONFIG_MAX_MUTEXES      "8")
-set(OSAL_CONFIG_MAX_COUNT_SEMAPHORES "8")
-set(OSAL_CONFIG_MAX_BIN_SEMAPHORES   "8")
-set(OSAL_CONFIG_MAX_TIMEBASES    "4")
-set(OSAL_CONFIG_MAX_TIMERS       "8")
-set(OSAL_CONFIG_MAX_MODULES      "4")
-set(OSAL_CONFIG_MAX_FILESYSTEMS  "2")
-set(OSAL_CONFIG_MAX_OPEN_FILES   "8")
-set(OSAL_CONFIG_MAX_OPEN_DIRS    "4")
+
+include("${CFS_ROOT}/osal/default_config.cmake")
+# TODO reconsider these overrides
+set(OSAL_CONFIG_INCLUDE_DYNAMIC_LOADER  FALSE)
+set(OSAL_CONFIG_INCLUDE_NETWORK         FALSE)
+set(OSAL_CONFIG_INCLUDE_SHELL           FALSE)
+set(OSAL_CONFIG_RWLOCK                  FALSE)
+set(OSAL_CONFIG_DEBUG_PRINTF            TRUE)
+set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE   TRUE)
+set(OSAL_CONFIG_CONSOLE_ASYNC           FALSE)
+set(OSAL_CONFIG_MAX_TASKS               16)
+set(OSAL_CONFIG_MAX_QUEUES              16)
+set(OSAL_CONFIG_MAX_MUTEXES             8)
+set(OSAL_CONFIG_MAX_COUNT_SEMAPHORES    8)
+set(OSAL_CONFIG_MAX_BIN_SEMAPHORES      8)
+set(OSAL_CONFIG_MAX_RWLOCKS             0)   # disabled above
+set(OSAL_CONFIG_MAX_CONDVARS            2)
+set(OSAL_CONFIG_MAX_TIMEBASES           4)
+set(OSAL_CONFIG_MAX_TIMERS              8)
+set(OSAL_CONFIG_MAX_MODULES             4)
+set(OSAL_CONFIG_MAX_FILE_SYSTEMS        2)
+set(OSAL_CONFIG_MAX_NUM_OPEN_FILES      8)
+set(OSAL_CONFIG_MAX_NUM_OPEN_DIRS       4)
+set(OSAL_CONFIG_PRINTF_BUFFER_SIZE      512)
+set(OSAL_CONFIG_PRINTF_BUFFER_DEPTH     20)
+set(OSAL_CONFIG_UTILITYTASK_STACK_SIZE  2048)
+set(OSAL_CONFIG_UTILITYTASK_PRIORITY    5)   # FreeRTOS low priority
+
 set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 configure_file(
     "${CFS_ROOT}/osal/osconfig.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/osconfig.h"
-    
+    @ONLY
+)
+
+# Generate pspconfig.h from template.
+include("${CFS_ROOT}/psp/default_config.cmake")
+set(PSP_CONFIG_DEBUG_PRINTF             TRUE)
+set(PSP_CONFIG_CF_VIRTUAL_MAPPING       "/cf/")
+configure_file(
+    "${CFS_ROOT}/psp/pspconfig.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/pspconfig.h"
     @ONLY
 )
  
@@ -183,7 +199,7 @@ idf_component_register(
         nvs_flash
         log
 )
- 
+
 target_compile_options(${COMPONENT_LIB} PRIVATE
     -Wno-unused-parameter
     -Wno-sign-compare
@@ -191,8 +207,8 @@ target_compile_options(${COMPONENT_LIB} PRIVATE
     # Tell cFE this is a static-link build (no dlopen/dlsym)
     -DCFE_STATIC_MODULE
  
-    # Use message ID format v2 (matches the msg/option_inc selection above)
-    -DCFE_MSG_HEADER_VERSION=2
+    # Use message ID format v1 (matches the msg/option_inc selection above)
+    -DCFE_MSG_HEADER_VERSION=1
  
     # Use single CPU -> SERVER mode for time
     -DCFE_TIME_CFG_SERVER=1
@@ -201,12 +217,12 @@ target_compile_options(${COMPONENT_LIB} PRIVATE
     # Resource ID implementation: simple (not strict type-checking)
     -DCFE_RESOURCEID_SIMPLE
  
-    # OSAL limits - keep small
-    -DOSAL_CONFIG_MAX_TASKS=16
-    -DOSAL_CONFIG_MAX_QUEUES=16
-    -DOSAL_CONFIG_MAX_MUTEXES=8
-    -DOSAL_CONFIG_MAX_TIMERS=8
-    -DOSAL_CONFIG_MAX_SEMAPHORES=16
-    -DOSAL_CONFIG_MAX_MODULES=4
-    -DOSAL_CONFIG_MAX_FILESYSTEMS=2
+    # OSAL limits - actually I think these are in osalconfig.h
+    # -DOSAL_CONFIG_MAX_TASKS=16
+    # -DOSAL_CONFIG_MAX_QUEUES=16
+    # -DOSAL_CONFIG_MAX_MUTEXES=8
+    # -DOSAL_CONFIG_MAX_TIMERS=8
+    # -DOSAL_CONFIG_MAX_SEMAPHORES=16
+    # -DOSAL_CONFIG_MAX_MODULES=4
+    # -DOSAL_CONFIG_MAX_FILESYSTEMS=2
 )
