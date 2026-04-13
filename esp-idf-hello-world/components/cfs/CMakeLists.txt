@@ -103,6 +103,7 @@ set(COMPONENT_SRCS
 )
  
 set(PUBLIC_INCLUDES
+    "${CMAKE_CURRENT_BINARY_DIR}" # generated headers go here
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CFS_ROOT}/cfe/cmake/target/inc"
     "${CFS_ROOT}/cfe/modules/config/fsw/inc"
@@ -124,7 +125,6 @@ set(PUBLIC_INCLUDES
 )
  
 set(PRIVATE_INCLUDES
-    "${CMAKE_CURRENT_BINARY_DIR}" # generated osconfig.h goes here
     "${CFS_ROOT}/cfe/modules/core_api/config"
     "${CFS_ROOT}/cfe/modules/core_private/config"
     "${CFS_ROOT}/cfe/modules/es/config"

@@ -12,9 +12,12 @@
 #include "esp_chip_info.h"
 #include "esp_flash.h"
 #include "esp_system.h"
+#include "osapi-common.h"
 
 void app_main(void)
 {
+    OS_API_Init();
+    
     printf("Hello world!\n");
 
     /* Print chip information */
