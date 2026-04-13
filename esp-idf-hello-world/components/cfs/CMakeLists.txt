@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.16)
 set(CFS_ROOT "${PROJECT_DIR}/third_party/cFS")
  
 set(COMPONENT_SRCS
+    # generated
+    "${CMAKE_CURRENT_BINARY_DIR}/src/cfe_configid_nametable.c"
+    
     "${CFS_ROOT}/cfe/modules/resourceid/fsw/src/cfe_resourceid_api.c"
     "${CFS_ROOT}/cfe/modules/fs/fsw/src/cfe_fs_api.c"
     "${CFS_ROOT}/cfe/modules/fs/fsw/src/cfe_fs_priv.c"
@@ -20,12 +23,13 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_api.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_buf.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_init.c"
+    # "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_eds_dispatch.c"  # Requires EDS dictionary
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_priv.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_task.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_util.c"
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs.c"
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_dispatch.c"
-    "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_eds_dispatch.c"
+    # "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_eds_dispatch.c"  # Requires EDS dictionary
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_log.c"
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_task.c"
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_utils.c"
@@ -101,6 +105,7 @@ set(COMPONENT_SRCS
 set(PUBLIC_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CFS_ROOT}/cfe/cmake/target/inc"
+    "${CFS_ROOT}/cfe/modules/config/fsw/inc"
     "${CFS_ROOT}/cfe/modules/core_api/fsw/inc"
     "${CFS_ROOT}/cfe/modules/core_private/fsw/inc"
     "${CFS_ROOT}/cfe/modules/es/fsw/inc"
@@ -113,6 +118,7 @@ set(PUBLIC_INCLUDES
     "${CFS_ROOT}/cfe/modules/msg/option_inc"
     "${CFS_ROOT}/cfe/modules/resourceid/fsw/inc"
     "${CFS_ROOT}/cfe/modules/resourceid/option_inc"
+      
     "${CFS_ROOT}/osal/src/os/inc"
     "${CFS_ROOT}/psp/fsw/inc"
 )
@@ -151,7 +157,7 @@ set(OSAL_CONFIG_DEBUG_PRINTF            TRUE)
 set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE   TRUE)
 set(OSAL_CONFIG_CONSOLE_ASYNC           FALSE)
 set(OSAL_CONFIG_MAX_TASKS               16)
-set(OSAL_CONFIG_MAX_QUEUES              16)
+set(OSAL_CONFIG_MAX_QUEUES              64)  # Must be >= CFE_PLATFORM_SB_MAX_PIPES (default 64)
 set(OSAL_CONFIG_MAX_MUTEXES             8)
 set(OSAL_CONFIG_MAX_COUNT_SEMAPHORES    8)
 set(OSAL_CONFIG_MAX_BIN_SEMAPHORES      8)
@@ -184,7 +190,57 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/pspconfig.h"
     @ONLY
 )
- 
+
+# *** BEGIN inline mission_build.cmake - modified ***
+# Generate the complete list of configuration ids
+# Start with an empty list - will be appended by various files
+set(CFE_CONFIG_IDS)
+
+# Get the base set of config IDs from a separate file
+# This baseline set is based on build time config and will be the same
+# on all CFE instances produced by this build.
+include(${CFS_ROOT}/cfe/modules/config/config_ids_base.cmake)
+
+# Get the set of config IDs that are generated via the platform config tool.
+# These are set to values based on platform config and may be different on
+# the different CFE instances.  To accomplish this, an intermediate translation
+# tool must be used - this resides in the "tool" directory.
+include(${CFS_ROOT}/cfe/modules/config/tool/config_ids_dynamic.cmake)
+
+# Append any mission-specific config IDs.  This is done last so it does
+# not change the order of items in the first two lists.
+# include(${MISSIONCONFIG}/config_ids_custom.cmake OPTIONAL)
+
+# Now generate header and source files containing the ID tables
+# This includes an enum, and enum to string name table, and a set
+# of constants to use in runtime FSW code.
+set(GENERATED_ID_MACRO_LIST)
+set(GENERATED_CONSTANT_DEFINE_LIST)
+
+foreach(CFGID ${CFE_CONFIG_IDS})
+  list(APPEND GENERATED_ID_MACRO_LIST "CFE_CONFIGID_DEFINE(${CFGID})\n")
+  list(APPEND GENERATED_CONSTANT_DEFINE_LIST "#define CFE_CONFIGID_${CFGID} CFE_CONFIGID_FROM_OFFSET(${CFGID})\n")
+endforeach()
+
+string(CONCAT GENERATED_ID_MACRO_LIST ${GENERATED_ID_MACRO_LIST})
+string(CONCAT GENERATED_CONSTANT_DEFINE_LIST ${GENERATED_CONSTANT_DEFINE_LIST})
+
+# Write header file for config offsets - this is the basic enumeration (symbols mapped to 0-based integers)
+# This is a simple list and does not need any other headers, and can be used by the platform config tool
+configure_file(${CFS_ROOT}/cfe/modules/config/cmake/cfe_configid_offset.h.in ${CMAKE_CURRENT_BINARY_DIR}/cfe_configid_offset.h @ONLY)
+
+# Write source file for enum to string mapping - this allows the software to print the config item by name
+# this is a simple lookup table based on the enum, so it can also be used by FSW and the platform config tool
+configure_file(${CFS_ROOT}/cfe/modules/config/cmake/cfe_configid_nametable.c.in ${CMAKE_CURRENT_BINARY_DIR}/src/cfe_configid_nametable.c @ONLY)
+
+# Write header file for config IDs - this is the FSW runtime identifier (resourceID) based on the enum above
+# however - it requires the full set of FSW headers, so it cannot be used by the platform config tool
+configure_file(${CFS_ROOT}/cfe/modules/config/cmake/cfe_config_ids.h.in ${CMAKE_CURRENT_BINARY_DIR}/cfe_config_ids.h @ONLY)
+
+# Add the subdirectory for the intermediate tool that allows platform-speicific data to included with the config
+# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tool cfeconfig_platformdata_tool)
+# *** END inline mission_build.cmake ***
+  
 idf_component_register(
     SRCS             ${COMPONENT_SRCS}
     INCLUDE_DIRS     ${PUBLIC_INCLUDES}
@@ -203,6 +259,8 @@ idf_component_register(
 target_compile_options(${COMPONENT_LIB} PRIVATE
     -Wno-unused-parameter
     -Wno-sign-compare
+    -Wno-maybe-uninitialized
+    -Wno-format-truncation
  
     # Tell cFE this is a static-link build (no dlopen/dlsym)
     -DCFE_STATIC_MODULE
