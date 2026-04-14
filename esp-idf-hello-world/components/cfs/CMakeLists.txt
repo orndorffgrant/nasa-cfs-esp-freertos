@@ -74,24 +74,15 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-task.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-timebase.c"
  
-    # TODO add when they exist
-    # Our OSAL port
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-binsem.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-clock.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-common.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-countsem.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-dir.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-file.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-filesys.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-heap.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-module.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-mutex.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-network.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-queue.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-select.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-sockets.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-task.c"
-    # "${CFS_ROOT}/osal/src/os/freertos/src/osapi-impl-timebase.c"
+    # FreeRTOS OSAL port
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-binsem.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-common.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-console.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-countsem.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-idmap.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-mutex.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-queue.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-task.c"
  
     # TODO add when they exist
     # Our PSP port
@@ -140,13 +131,12 @@ set(PRIVATE_INCLUDES
     "${CFS_ROOT}/cfe/modules/time/fsw/src"
     "${CFS_ROOT}/osal/src/os/shared/inc"
     
+    "${CFS_ROOT}/osal/src/os/freertos/inc"
     # TODO create and add back when they exist
-    # "${CFS_ROOT}/osal/src/os/freertos/inc"
     # "${CFS_ROOT}/psp/fsw/esp32s3/inc"
 )
 
 # Generate osconfig.h from OSAL's template.
-
 include("${CFS_ROOT}/osal/default_config.cmake")
 # TODO reconsider these overrides
 set(OSAL_CONFIG_INCLUDE_DYNAMIC_LOADER  FALSE)
