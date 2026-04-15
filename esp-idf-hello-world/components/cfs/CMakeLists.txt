@@ -96,7 +96,6 @@ set(COMPONENT_SRCS
     # stubs
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-file.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-filesys.c"
-    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-heap.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-module.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-network.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-sockets.c"
@@ -104,6 +103,7 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-binsem.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-console.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-countsem.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-heap.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-idmap.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-mutex.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-queue.c"
@@ -142,6 +142,7 @@ set(PUBLIC_INCLUDES
     "${CFS_ROOT}/osal/src/bsp/shared/inc"
       
     "${CFS_ROOT}/osal/src/os/inc"
+    "${CFS_ROOT}/osal/src/os/shared/inc"
     "${CFS_ROOT}/psp/fsw/inc"
 )
  
