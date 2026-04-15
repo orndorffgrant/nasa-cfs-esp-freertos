@@ -13,10 +13,19 @@
 #include "esp_flash.h"
 #include "esp_system.h"
 #include "osapi-common.h"
+#include "osapi-error.h"
+#include "esp_idf_bsp_start.h"
 
 void app_main(void)
 {
-    OS_API_Init();
+    int32 result = OS_API_Init();
+    if (result != OS_SUCCESS) {
+        printf("OS_API_Init failed: %d\n", (int)result);
+        return;
+    } else {
+        printf("OS_API_Init succeeded\n");
+    }
+    cfs_bsp_main();
     
     printf("Hello world!\n");
 

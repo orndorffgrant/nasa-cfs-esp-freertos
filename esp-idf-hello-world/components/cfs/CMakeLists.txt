@@ -57,7 +57,9 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-binsem.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-clock.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-common.c"
+    "${CFS_ROOT}/osal/src/os/shared/src/osapi-condvar.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-countsem.c"
+    "${CFS_ROOT}/osal/src/os/shared/src/osapi-debug.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-dir.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-errors.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-file.c"
@@ -69,20 +71,45 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-network.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-printf.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-queue.c"
+    # "${CFS_ROOT}/osal/src/os/shared/src/osapi-rwlock.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-select.c"
+    "${CFS_ROOT}/osal/src/os/shared/src/osapi-shell.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-sockets.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-task.c"
+    "${CFS_ROOT}/osal/src/os/shared/src/osapi-time.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-timebase.c"
+    "${CFS_ROOT}/osal/src/os/shared/src/osapi-version.c"
+    
+    "${CFS_ROOT}/osal/src/os/portable/os-impl-console-bsp.c"
  
+    "${CFS_ROOT}/osal/src/bsp/shared/src/bsp_default_app_run.c"
+    "${CFS_ROOT}/osal/src/bsp/shared/src/bsp_default_app_startup.c"
+    "${CFS_ROOT}/osal/src/bsp/shared/src/bsp_default_resourcecfg.c"
+    "${CFS_ROOT}/osal/src/bsp/shared/src/bsp_default_symtab.c"
+    "${CFS_ROOT}/osal/src/bsp/shared/src/osapi-bsp.c"
+    
+    # ESP IDF FreeRTOS BSP
+    "${CFS_ROOT}/osal/src/bsp/esp-idf-freertos/src/bsp_console.c"
+    "${CFS_ROOT}/osal/src/bsp/esp-idf-freertos/src/bsp_start.c"
+    
     # FreeRTOS OSAL port
+    # stubs
+    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-file.c"
+    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-filesys.c"
+    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-heap.c"
+    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-module.c"
+    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-network.c"
+    "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-sockets.c"
+    
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-binsem.c"
-    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-common.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-console.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-countsem.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-idmap.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-mutex.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-queue.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-task.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-timebase.c"
+    "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-common.c" # needs to go last since it uses the rest
  
     # TODO add when they exist
     # Our PSP port
@@ -110,6 +137,9 @@ set(PUBLIC_INCLUDES
     "${CFS_ROOT}/cfe/modules/msg/option_inc"
     "${CFS_ROOT}/cfe/modules/resourceid/fsw/inc"
     "${CFS_ROOT}/cfe/modules/resourceid/option_inc"
+    
+    "${CFS_ROOT}/osal/src/bsp/esp-idf-freertos/inc"
+    "${CFS_ROOT}/osal/src/bsp/shared/inc"
       
     "${CFS_ROOT}/osal/src/os/inc"
     "${CFS_ROOT}/psp/fsw/inc"
@@ -131,6 +161,7 @@ set(PRIVATE_INCLUDES
     "${CFS_ROOT}/cfe/modules/time/fsw/src"
     "${CFS_ROOT}/osal/src/os/shared/inc"
     
+    "${CFS_ROOT}/osal/src/bsp/esp-idf-freertos/src"
     "${CFS_ROOT}/osal/src/os/freertos/inc"
     # TODO create and add back when they exist
     # "${CFS_ROOT}/psp/fsw/esp32s3/inc"
