@@ -5,7 +5,13 @@ set(CFS_ROOT "${PROJECT_DIR}/third_party/cFS")
 set(COMPONENT_SRCS
     # generated
     "${CMAKE_CURRENT_BINARY_DIR}/src/cfe_configid_nametable.c"
-    
+
+    # CFE core configuration data (links CFE, PSP, and OSAL together)
+    "${CFS_ROOT}/cfe/cmake/target/src/target_config.c"
+
+    # CFE platform config tables and setup
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/mission_tables.c"
+
     "${CFS_ROOT}/cfe/modules/resourceid/fsw/src/cfe_resourceid_api.c"
     "${CFS_ROOT}/cfe/modules/fs/fsw/src/cfe_fs_api.c"
     "${CFS_ROOT}/cfe/modules/fs/fsw/src/cfe_fs_priv.c"
@@ -18,6 +24,7 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_sechdr_checksum.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_sechdr_fc.c"
     "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_sechdr_time.c"
+    "${CFS_ROOT}/cfe/modules/msg/fsw/src/cfe_msg_initdefaulthdr_pri.c"
     "${CFS_ROOT}/cfe/modules/sbr/fsw/src/cfe_sbr_map_direct.c"
     "${CFS_ROOT}/cfe/modules/sbr/fsw/src/cfe_sbr_route_unsorted.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_api.c"
@@ -27,6 +34,8 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_priv.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_task.c"
     "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_util.c"
+    "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_msg_id_util.c"
+    "${CFS_ROOT}/cfe/modules/sb/fsw/src/cfe_sb_dispatch.c"
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs.c"
     "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_dispatch.c"
     # "${CFS_ROOT}/cfe/modules/evs/fsw/src/cfe_evs_eds_dispatch.c"  # Requires EDS dictionary
@@ -36,10 +45,24 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_api.c"
     "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_task.c"
     "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_task_cmds.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_dispatch.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_internal.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_accdesc.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_dump.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_dumpctl.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_handlelink.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_load.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_loadbuff.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_passthru_codec.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_regrec.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_registry.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_transaction.c"
+    "${CFS_ROOT}/cfe/modules/tbl/fsw/src/cfe_tbl_valresult.c"
     "${CFS_ROOT}/cfe/modules/time/fsw/src/cfe_time_api.c"
     "${CFS_ROOT}/cfe/modules/time/fsw/src/cfe_time_task.c"
     "${CFS_ROOT}/cfe/modules/time/fsw/src/cfe_time_tone.c"
     "${CFS_ROOT}/cfe/modules/time/fsw/src/cfe_time_utils.c"
+    "${CFS_ROOT}/cfe/modules/time/fsw/src/cfe_time_dispatch.c"
     "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_api.c"
     "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_apps.c"
     "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_backgroundtask.c"
@@ -53,7 +76,15 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_start.c"
     "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_syslog.c"
     "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_task.c"
- 
+    "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_perf.c"
+    "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_crc.c"
+    "${CFS_ROOT}/cfe/modules/es/fsw/src/cfe_es_dispatch.c"
+    "${CFS_ROOT}/cfe/modules/config/fsw/src/cfe_config_get.c"
+    "${CFS_ROOT}/cfe/modules/config/fsw/src/cfe_config_init.c"
+    "${CFS_ROOT}/cfe/modules/config/fsw/src/cfe_config_eds_disabled.c"
+    "${CFS_ROOT}/cfe/modules/config/fsw/src/cfe_config_lookup.c"
+    "${CFS_ROOT}/cfe/modules/config/fsw/src/cfe_config_set.c"
+
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-binsem.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-clock.c"
     "${CFS_ROOT}/osal/src/os/shared/src/osapi-common.c"
@@ -93,13 +124,13 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/osal/src/bsp/esp-idf-freertos/src/bsp_start.c"
     
     # FreeRTOS OSAL port
-    # stubs
+    "${CFS_ROOT}/osal/src/os/portable/os-impl-no-loader.c"
+    "${CFS_ROOT}/osal/src/os/portable/os-impl-no-symtab.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-file.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-filesys.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-module.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-network.c"
     "${CFS_ROOT}/osal/src/os/freertos/todo/os-impl-sockets.c"
-    
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-binsem.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-console.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-countsem.c"
@@ -111,13 +142,22 @@ set(COMPONENT_SRCS
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-timebase.c"
     "${CFS_ROOT}/osal/src/os/freertos/src/os-impl-common.c" # needs to go last since it uses the rest
  
-    # TODO add when they exist
     # Our PSP port
-    # "${CFS_ROOT}/psp/fsw/esp32s3/src/cfe_psp_start.c"
-    # "${CFS_ROOT}/psp/fsw/esp32s3/src/cfe_psp_memory.c"
-    # "${CFS_ROOT}/psp/fsw/esp32s3/src/cfe_psp_time.c"
-    # "${CFS_ROOT}/psp/fsw/esp32s3/src/cfe_psp_exception.c"
-    # "${CFS_ROOT}/psp/fsw/esp32s3/src/cfe_psp_watchdog.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_debug.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_error.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_exceptionstorage.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_memrange.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_memutils.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_module.c"
+    "${CFS_ROOT}/psp/fsw/shared/src/cfe_psp_version.c"
+    "${CFS_ROOT}/psp/fsw/freertos/src/cfe_psp_memory.c"
+    "${CFS_ROOT}/psp/fsw/freertos/src/cfe_psp_start.c"
+    "${CFS_ROOT}/psp/fsw/freertos/src/cfe_psp_timer.c"
+    "${CFS_ROOT}/psp/fsw/freertos/todo/cfe_psp_exception.c"
+    "${CFS_ROOT}/psp/fsw/freertos/todo/cfe_psp_support.c"
+    "${CFS_ROOT}/psp/fsw/freertos/todo/cfe_psp_timer.c"
+    "${CFS_ROOT}/psp/fsw/freertos/vendor/cfe_psp_memory.c"
+    "${CFS_ROOT}/psp/fsw/freertos/vendor/cfe_psp_memtab.c"
 )
  
 set(PUBLIC_INCLUDES
@@ -144,6 +184,8 @@ set(PUBLIC_INCLUDES
     "${CFS_ROOT}/osal/src/os/inc"
     "${CFS_ROOT}/osal/src/os/shared/inc"
     "${CFS_ROOT}/psp/fsw/inc"
+    "${CFS_ROOT}/psp/fsw/shared/inc"
+    "${CFS_ROOT}/psp/fsw/freertos/inc"
 )
  
 set(PRIVATE_INCLUDES
@@ -164,8 +206,8 @@ set(PRIVATE_INCLUDES
     
     "${CFS_ROOT}/osal/src/bsp/esp-idf-freertos/src"
     "${CFS_ROOT}/osal/src/os/freertos/inc"
-    # TODO create and add back when they exist
-    # "${CFS_ROOT}/psp/fsw/esp32s3/inc"
+    "${CFS_ROOT}/psp/fsw/shared/inc"
+    "${CFS_ROOT}/psp/fsw/freertos/inc"
 )
 
 # Generate osconfig.h from OSAL's template.
@@ -180,7 +222,7 @@ set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE   TRUE)
 set(OSAL_CONFIG_CONSOLE_ASYNC           FALSE)
 set(OSAL_CONFIG_MAX_TASKS               16)
 set(OSAL_CONFIG_MAX_QUEUES              64)  # Must be >= CFE_PLATFORM_SB_MAX_PIPES (default 64)
-set(OSAL_CONFIG_MAX_MUTEXES             8)
+set(OSAL_CONFIG_MAX_MUTEXES             32)
 set(OSAL_CONFIG_MAX_COUNT_SEMAPHORES    8)
 set(OSAL_CONFIG_MAX_BIN_SEMAPHORES      8)
 set(OSAL_CONFIG_MAX_RWLOCKS             0)   # disabled above
